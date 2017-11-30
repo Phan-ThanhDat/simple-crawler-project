@@ -1,0 +1,178 @@
+<html>
+    <head>
+        <title>Product list</title>
+        <style class="text/css">
+            button {
+                padding: 5px 10px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+            table {
+                margin-top: 15px;
+                width: 100%;
+            }
+            th {
+                text-align: left;
+            }
+        </style>
+    </head>
+    <body>
+        <h2 style="text-align: center">Product list</h2>
+
+		<div style="text-align: center; margin-bottom: 10px;">
+			<a href="/crawler.php">Click here to craw data</a>
+		</div>
+        <div style="text-align: center">
+            <button id="list-btn">List</button>
+            <button id="empty-btn">Empty</button>
+        </div>
+
+        <h3 style="text-align: center; display: none" id="loading">Loading data from database...</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Name</th>
+                    <th>Manufacturer</th>
+                    <th style="width: 80px;">Bottle size</th>
+                    <th>Price</th>
+                    <th style="width: 100px;">Price per litre</th>
+                    <th style="width: 100px;">Alcohol (%)</th>
+                    <th style="width: 140px;">Timestamp</th>
+                    <th style="width: 80px;">Quantity</th>
+                    <th style="width: 180px;"></th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+
+        <script src="./jquery-3.2.1.min.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var $listBtn = $('#list-btn');
+                var $emptyBtn = $('#empty-btn');
+                var $loading = $('#loading');
+                var $tableBody = $('#table-body');
+
+                $emptyBtn.on('click', emptyTable);
+
+                function emptyTable() {
+                    document.getElementById('table-body').innerHTML = '';
+                }
+
+                // Load data to table
+                $listBtn.on('click', function() {
+                    emptyTable();
+                    $loading.show();
+
+                    $.get('ajax_load.php', function(result) {
+                        var fragment = document.createDocumentFragment();
+                        for ( var i = 0; i < result.data.length; i++ ) {
+                            var tr = document.createElement('tr');
+                            tr.setAttribute('data-id', result.data[i]['id']);
+
+                            var td1 = document.createElement('td');
+                            td1.innerHTML = result.data[i]['number'];
+
+                            var td2 = document.createElement('td');
+                            td2.innerHTML = result.data[i]['name'];
+
+                            var td3 = document.createElement('td');
+                            td3.innerHTML = result.data[i]['manufacturer'];
+
+                            var td4 = document.createElement('td');
+                            td4.innerHTML = result.data[i]['bottle_size'];
+
+                            var td5 = document.createElement('td');
+                            td5.innerHTML = result.data[i]['price'];
+
+                            var td6 = document.createElement('td');
+                            td6.innerHTML = result.data[i]['price_per_liter'];
+
+                            var td7 = document.createElement('td');
+                            td7.innerHTML = result.data[i]['alcohol'];
+
+                            var td8 = document.createElement('td');
+                            td8.innerHTML = result.data[i]['timestamp'];
+
+                            var td9 = document.createElement('td');
+                            td9.innerHTML = result.data[i]['quantity'];
+                            td9.className = 'item-quantity';
+
+                            var td10 = document.createElement('td');
+
+                            var buttonAdd = document.createElement('button');
+                            buttonAdd.innerHTML = '(+) Add';
+                            buttonAdd.className = 'item-add';
+
+                            var buttonRemove = document.createElement('button');
+                            buttonRemove.innerHTML = '(-) Remove';
+                            buttonRemove.className = 'item-remove';
+
+                            td10.appendChild(buttonAdd);
+                            td10.appendChild(buttonRemove);
+
+                            tr.appendChild(td1);
+                            tr.appendChild(td2);
+                            tr.appendChild(td3);
+                            tr.appendChild(td4);
+                            tr.appendChild(td5);
+                            tr.appendChild(td6);
+                            tr.appendChild(td7);
+                            tr.appendChild(td8);
+                            tr.appendChild(td9);
+                            tr.appendChild(td10);
+
+                            fragment.appendChild(tr);
+                        }
+
+                        document.getElementById('table-body').appendChild(fragment);
+                        $loading.hide();
+                    })
+                });
+
+                // Remove or add
+                $tableBody.on('click', '.item-add', function(e) {
+                    updateProduct(true, e);
+                });
+
+                $tableBody.on('click', '.item-remove', function(e) {
+                    updateProduct(false, e);
+                });
+
+                function updateProduct(isAdd, e) {
+                    var $button = $(e.target);
+                    var $tr = $button.closest('tr');
+                    var $quantityCell = $tr.find('.item-quantity').first();
+
+                    var quantity = parseInt($quantityCell.html());
+
+                    if(quantity === 0 && !isAdd) {
+                        alert('There is no item to remove.');
+                        return;
+                    }
+
+                    var id = $tr.data('id');
+
+                    var data = {
+                        id: id,
+                        isAdd: isAdd
+                    };
+
+                    $button.attr('disabled', 'disabled');
+                    $.post('ajax_update.php', data, function(result) {
+                        var quantity = parseInt(result.data);
+
+                        if(quantity !== -1) {
+                            var resultQuantity = parseInt(result.data);
+
+                            $button.removeAttr('disabled');
+                            $quantityCell.html(resultQuantity);
+                        }
+                    });
+                }
+            })
+        </script>
+    </body>
+</html>

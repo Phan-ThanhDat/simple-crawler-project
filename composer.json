@@ -1,0 +1,9 @@
+{
+    "name": "task/simple-crawler",
+    "require": {
+        "guzzlehttp/guzzle": "^6.3",
+        "symfony/dom-crawler": "^3.3",
+        "symfony/css-selector": "^3.3",
+        "phpoffice/phpexcel": "^1.8"
+    }
+}
