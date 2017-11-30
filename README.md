@@ -5,6 +5,14 @@
 - Step 2: Create Virtual Host point to `public` folder
 - Step 3: Configure `database` connection and Currency `API key` in `config/defines.php`
 
+### Step to run:
+* Open the home page
+* Click **Click here to craw data**
+* After the crawling process is done, go back to the home page by clicking on **Click here to go back**
+* Click **List** button to display the table of items
+* Click **Empty** to clear the table of items
+* On each iteam, click **Add** or **Remove** to update the quantity of item
+
 ### Functions:
 - `config/defines.php`: Config for application
 - `src/bootstrap.php`: Bootstrap for application, include Composer's autoload
